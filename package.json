@@ -1,0 +1,19 @@
+{
+  "name": "currency_converter",
+  "version": "1.0.0",
+  "description": "A PWA currency converter",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnayeni/johnayeni.github.io.git"
+  },
+  "author": "John Ayeni",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnayeni/johnayeni.github.io/issues"
+  },
+  "homepage": "https://github.com/johnayeni/johnayeni.github.io#readme"
+}
