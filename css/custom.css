@@ -37,6 +37,10 @@
   color: grey;
 }
 
+#label2 {
+  font-weight: bold;
+}
+
 #snackbar {
   visibility: hidden;
   min-width: 250px;

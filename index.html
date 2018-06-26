@@ -40,18 +40,18 @@
         <div class="mdl-card mdl-shadow--2dp">
           <div class="mdl-card__supporting-text">
             <p id="label1"></p>
-            <h3 id="label2"></h3>
+            <h4 id="label2"></h4>
             <div class="mdl-grid">
               <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <select class="mdl-textfield__input" id="currencyList1">
+                  <select class="mdl-textfield__input" id="currencyList1" onchange="app._userInteraction()">
                     <!-- currency list -->
                   </select>
                 </div>
               </div>
               <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <select class="mdl-textfield__input" id="currencyList2">
+                  <select class="mdl-textfield__input" id="currencyList2" onchange="app._userInteraction()">
                     <!-- currency list -->
                   </select>
                 </div>
@@ -60,13 +60,13 @@
             <div class="mdl-grid">
               <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input class="mdl-textfield__input" type="number" id="input1" value="1">
+                  <input class="mdl-textfield__input" type="number" id="input1" value="1" onkeyup="app._userInteraction('input1')">
                   <label class="mdl-textfield__label" for="input1" id="input1Label"></label>
                 </div>
               </div>
               <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input class="mdl-textfield__input" type="number" id="input2" value="1">
+                  <input class="mdl-textfield__input" type="number" id="input2" value="1" onkeyup="app._userInteraction('input2')">
                   <label class="mdl-textfield__label" for="input2" id="input2Label"></label>
                 </div>
               </div>

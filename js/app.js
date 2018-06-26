@@ -25,7 +25,9 @@ const openDatabase = () => {
     const currencyStore = upgradeDb.createObjectStore('currencies', {
       keyPath: 'name',
     });
-    const conversionStore = upgradeDb.createObjectStore('conversions');
+    const conversionStore = upgradeDb.createObjectStore('conversions', {
+      keyPath: 'id',
+    });
   });
 };
 
@@ -41,6 +43,7 @@ const closeToast = () => {
 class ApplicationController {
   constructor() {
     this.currencies = [];
+    this.inputTrigger = 'input1';
     this._dbPromise = openDatabase();
     this._registerServiceWorker();
     this._updateNetworkStatus();
@@ -68,16 +71,20 @@ class ApplicationController {
     try {
       if (navigator.onLine) {
         let promise = new Promise((resolve, reject) => {
-          return fetch(`${API_URL}/api/v5/currencies`).then(response => {
+          return fetch(`${API_URL}/api/v5/countries`).then(response => {
             resolve(response.json());
           });
         });
         promise.then(response => {
           appController.currencies = Object.keys(response.results).map(key => {
-            return { name: key, details: response.results[key] };
+            return {
+              name: response.results[key].currencyId,
+              details: response.results[key],
+            };
           });
           appController._addCurrenciesToView(appController.currencies);
           appController._storeCurrenciesInIDB(appController.currencies);
+          appController._fetchConversionRate();
         });
       } else {
         appController._dbPromise.then(db => {
@@ -86,6 +93,7 @@ class ApplicationController {
           let tx = db.transaction('currencies').objectStore('currencies');
           return tx.getAll().then(currencies => {
             appController._addCurrenciesToView(currencies);
+            appController._fetchConversionRate();
           });
         });
       }
@@ -93,9 +101,40 @@ class ApplicationController {
       showToast('Cannot currently get any data');
     }
   }
-  _fetchConversionRate() {}
+
+  // get conversion rate from API
+  _fetchConversionRate() {
+    const appController = this;
+    const currency1 = view.currencyList1.value;
+    const currency2 = view.currencyList2.value;
+    const query = `${currency1.toUpperCase()}_${currency2.toUpperCase()}`;
+    try {
+      if (navigator.onLine) {
+        let promise = new Promise((resolve, reject) => {
+          return fetch(`${API_URL}/api/v5/convert?q=${query}`).then(
+            response => {
+              resolve(response.json());
+            },
+          );
+        });
+        promise.then(response => {
+          appController._applyConversionRate(
+            response.results[query].val,
+            query,
+          );
+          appController._storeConversionInIDB(response.results[query]);
+        });
+      } else {
+        appController._getConversionFromIDB(query);
+      }
+    } catch (error) {
+      showToast('Cannot currently get any data');
+    }
+  }
+
+  // store list of currencies on IDB
   _storeCurrenciesInIDB(currencies) {
-    this._dbPromise.then(function(db) {
+    this._dbPromise.then(db => {
       if (!db) return;
 
       let tx = db.transaction('currencies', 'readwrite');
@@ -111,27 +150,96 @@ class ApplicationController {
       });
     });
   }
-  _storeConversionInIDB() {}
-  _getCurrenciesFromIDB() {}
-  _getConversionFromIDB() {}
+
+  // apply conversion rate to inputs
+  _applyConversionRate(rate, query) {
+    const appController = this;
+    appController._changeConvesrionDecription(rate, query);
+    if (appController.inputTrigger == 'input1') {
+      view.input2.value = Number(view.input1.value) * Number(rate);
+    } else if (appController.inputTrigger == 'input2') {
+      view.input1.value = Number(view.input2.value) / Number(rate);
+    }
+  }
+
+  // Change the conversion decsription be displayed
+  _changeConvesrionDecription(rate, query) {
+    const appController = this;
+    const currency1 = query.split('_')[0];
+    const currency2 = query.split('_')[1];
+    view.label1.textContent = `1 ${
+      appController.currencies.filter(obj => obj.name == currency1)[0].details
+        .currencyName
+    } is equal to`;
+    view.label2.textContent = `${rate} ${
+      appController.currencies.filter(obj => obj.name == currency2)[0].details
+        .currencyName
+    }`;
+  }
+  // store a conversion rate on IDB
+  _storeConversionInIDB(conversion) {
+    this._dbPromise.then(db => {
+      if (!db) return;
+
+      let tx = db.transaction('conversions', 'readwrite');
+      let store = tx.objectStore('conversions');
+      // remove all previously stored currencies
+      store.openCursor(null).then(function deleteConversion(cursor) {
+        if (!cursor) return;
+        if (cursor.value.id == conversion.id) cursor.delete();
+        return cursor.continue().then(deleteConversion);
+      });
+      store.put(conversion);
+    });
+  }
+
+  // get list of currecies from IDB
+  _getCurrenciesFromIDB(query) {
+    const appController = this;
+    appController._dbPromise.then(db => {
+      if (!db) return;
+
+      let tx = db.transaction('conversions').objectStore('conversions');
+      return tx.getOne(query).then(conversion => {
+        appController._applyConversionRate(conversion.val, query);
+      });
+    });
+  }
+
+  // get a conversion rate from IDB
+  _getConversionFromIDB() {
+    const appController = this;
+    appController._dbPromise.then(db => {
+      if (!db) return;
+
+      let tx = db.transaction('currencies').objectStore('currencies');
+      return tx.getAll().then(currencies => {
+        appController._addCurrenciesToView(currencies);
+      });
+    });
+  }
 
   // add list of currencies to view
   _addCurrenciesToView(currencies) {
     for (let currency of currencies) {
       const option1 = document.createElement('option');
-      const option2 = document.createElement('option');
-      option1.text = option2.text = view.input1Label.text = view.input2Label.text =
-        currency.name;
+      option1.text = view.input1Label.text = currency.name;
       view.currencyList1.add(option1);
-      view.currencyList2.add(option2);
-      this._userInteraction();
     }
+    for (let currency of currencies.reverse()) {
+      const option2 = document.createElement('option');
+      option2.text = view.input2Label.text = currency.name;
+      view.currencyList2.add(option2);
+    }
+    this._userInteraction();
   }
+
   // monitor network status
   _monitorNetwork() {
     window.addEventListener('online', this._updateNetworkStatus);
     window.addEventListener('offline', this._updateNetworkStatus);
   }
+
   // update network status
   _updateNetworkStatus() {
     const appController = this;
@@ -151,9 +259,11 @@ class ApplicationController {
       view.offlineIndicator.classList.add('show');
     }
   }
-  _userInteraction() {
-    const currency1 = view.currencyList1.value;
-    const currency2 = view.currencyList2.value;
+
+  _userInteraction(inputTrigger = 'input1') {
+    const appController = this;
+    appController.inputTrigger = inputTrigger;
+    appController._fetchConversionRate();
   }
 }
 
