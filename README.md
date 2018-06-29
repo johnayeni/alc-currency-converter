@@ -1,6 +1,6 @@
 # alc-currency-converter
 
-This is a app for the ALC 3.0 7 days od code.
+This is a app for the ALC 3.0  7 days of code.
 
 ### Installing
 
