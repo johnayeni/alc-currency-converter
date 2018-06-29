@@ -97,8 +97,8 @@ class ApplicationController {
   // get conversion rate from API
   async _fetchConversionRate() {
     const appController = this;
-    const currency1 = view.currencyList1.value;
-    const currency2 = view.currencyList2.value;
+    const currency1 = view.currencyList1.value.split('-')[0];
+    const currency2 = view.currencyList2.value.split('-')[0];
     const query = `${currency1.toUpperCase()}_${currency2.toUpperCase()}`;
     let conversion = await appController._getConversionFromIDB(query);
     if (!conversion) {
@@ -185,12 +185,18 @@ class ApplicationController {
     const appController = this;
     for (let currency of currencies) {
       const option1 = document.createElement('option');
-      option1.text = view.input1Label.text = currency.name;
+      option1.text = view.input1Label.text = `${currency.name}-${
+        appController.currencies.filter(obj => obj.name == currency.name)[0]
+          .details.currencyName
+      }`;
       view.currencyList1.add(option1);
     }
     for (let currency of currencies.reverse()) {
       const option2 = document.createElement('option');
-      option2.text = view.input2Label.text = currency.name;
+      option2.text = view.input2Label.text = `${currency.name}-${
+        appController.currencies.filter(obj => obj.name == currency.name)[0]
+          .details.currencyName
+      }`;
       view.currencyList2.add(option2);
     }
     appController._userInteraction();
@@ -212,6 +218,8 @@ class ApplicationController {
     const appController = this;
     const currency1 = query.split('_')[0];
     const currency2 = query.split('_')[1];
+    view.input1Label.textContent = currency1;
+    view.input2Label.textContent = currency2;
     view.label1.textContent = `1 ${
       appController.currencies.filter(obj => obj.name == currency1)[0].details
         .currencyName

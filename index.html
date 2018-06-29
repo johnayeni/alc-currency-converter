@@ -35,21 +35,22 @@
       </div>
     </header>
     <main class="mdl-layout__content">
-      <div class="page-content vertical-container" id="contentBox">
+      <div class="page-content vertical-container flex" id="contentBox">
         <!-- Your content goes here -->
+        <h3 class="header">CURRENCY CONVERTER</h3>
         <div class="mdl-card mdl-shadow--2dp">
           <div class="mdl-card__supporting-text">
             <p id="label1"></p>
             <h4 id="label2"></h4>
             <div class="mdl-grid">
-              <div class="mdl-cell mdl-cell--6-col">
+              <div class="mdl-cell mdl-cell--6-col flex">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <select class="mdl-textfield__input" id="currencyList1" onchange="app._userInteraction()">
                     <!-- currency list -->
                   </select>
                 </div>
               </div>
-              <div class="mdl-cell mdl-cell--6-col">
+              <div class="mdl-cell mdl-cell--6-col flex">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <select class="mdl-textfield__input" id="currencyList2" onchange="app._userInteraction()">
                     <!-- currency list -->
