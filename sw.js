@@ -16,7 +16,12 @@ self.addEventListener('install', e => {
 
   // github pages fix
   if (e.currentTarget.location.origin === 'https://johnayeni.github.io') {
-    filesToCache_ = filesToCache.map(file => `/alc-currency-converter/${file}`);
+    filesToCache_ = filesToCache.map(
+      file =>
+        file === 'https://fonts.googleapis.com/icon?family=Material+Icons'
+          ? file
+          : `/alc-currency-converter/${file}`,
+    );
   } else filesToCache_ = filesToCache;
 
   console.log('[ServiceWorker] Install');
