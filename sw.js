@@ -1,12 +1,7 @@
 const cachesName = 'currency-converter-v1';
 
-const index =
-  window.location.hostname === 'johnayeni.github.io'
-    ? '/alc-currency-converter/'
-    : '/';
-
 const filesToCache = [
-  index,
+  '/',
   'js/material.min.js',
   'js/idb.min.js',
   'js/app.js',
@@ -17,11 +12,18 @@ const filesToCache = [
 
 // on installation of service worker, add files to the cache
 self.addEventListener('install', e => {
+  let filesToCache_ = new Array();
+
+  // github pages fix
+  if (e.currentTarget.location.origin === 'https://johnayeni.github.io') {
+    filesToCache_ = filesToCache.map(file => `/alc-currency-converter/${file}`);
+  } else filesToCache_ = filesToCache;
+
   console.log('[ServiceWorker] Install');
   e.waitUntil(
     caches.open(cachesName).then(cache => {
       console.log('[ServiceWorker] Caching app shell');
-      return cache.addAll(filesToCache);
+      return cache.addAll(filesToCache_);
     }),
   );
 });
