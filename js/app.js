@@ -53,9 +53,15 @@ class ApplicationController {
 
   // register service worker
   _registerServiceWorker() {
+    const sw = '/sw.js';
+
+    // fix for github pages hosting
+    if (window.location.hostname === 'johnayeni.github.io')
+      sw = 'johnayeni.github.io/alc-currency-converter/sw.js';
+
     if (navigator.serviceWorker) {
       navigator.serviceWorker
-        .register('/sw.js')
+        .register(sw)
         .then(() => {
           console.log('Service worker registered');
         })
