@@ -1,7 +1,12 @@
 const cachesName = 'currency-converter-v1';
 
+const index =
+  window.location.hostname === 'johnayeni.github.io'
+    ? '/alc-currency-converter/'
+    : '/';
+
 const filesToCache = [
-  '/',
+  index,
   'js/material.min.js',
   'js/idb.min.js',
   'js/app.js',
