@@ -53,7 +53,7 @@ class ApplicationController {
 
   // register service worker
   _registerServiceWorker() {
-    const sw = '/sw.js';
+    let sw = '/sw.js';
 
     // fix for github pages hosting
     if (window.location.hostname === 'johnayeni.github.io')
