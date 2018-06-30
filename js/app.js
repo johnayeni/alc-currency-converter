@@ -174,6 +174,7 @@ class ApplicationController {
 
       let tx = db.transaction('currencies').objectStore('currencies');
       return tx.getAll().then(currencies => {
+        appController.currencies = [...currencies];
         appController._addCurrenciesToView(currencies);
         appController._fetchConversionRate();
       });
