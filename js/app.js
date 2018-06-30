@@ -42,7 +42,7 @@ const closeToast = () => {
 
 class ApplicationController {
   constructor() {
-    this.currencies = [];
+    this.currencies = new Array();
     this.inputTrigger = 'input1';
     this._dbPromise = openDatabase();
     this._registerServiceWorker();
