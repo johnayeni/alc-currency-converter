@@ -57,7 +57,7 @@ class ApplicationController {
 
     // fix for github pages hosting
     if (window.location.hostname === 'johnayeni.github.io')
-      sw = 'johnayeni.github.io/alc-currency-converter/sw.js';
+      sw = '/alc-currency-converter/sw.js';
 
     if (navigator.serviceWorker) {
       navigator.serviceWorker
