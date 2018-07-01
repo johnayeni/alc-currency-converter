@@ -8,6 +8,7 @@
 
 .mdl-card {
   width: 80%;
+  margin: 30px;
 }
 
 #contentBox {
@@ -24,11 +25,6 @@
   justify-content: center;
   display: flex;
   flex-direction: column;
-}
-
-.mdl-data-table {
-  border: none;
-  width: 100%;
 }
 
 .show {
