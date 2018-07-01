@@ -64,14 +64,12 @@ class ApplicationController {
       sw = '/alc-currency-converter/sw.js';
 
     if (navigator.serviceWorker) {
-      navigator.serviceWorker
-        .register(sw)
-        .then(() => {
-          console.log('Service worker registered');
-        })
-        .catch(e => {
-          console.log('Service worker registertion failed');
-        });
+      try {
+        navigator.serviceWorker.register(sw);
+        console.log('Service worker registered');
+      } catch (e) {
+        console.log('Service worker registertion failed');
+      }
     }
   }
 
@@ -80,21 +78,17 @@ class ApplicationController {
     const appController = this;
     try {
       if (navigator.onLine) {
-        let promise = new Promise(async (resolve, reject) => {
-          const response = await fetch(`${API_URL}/api/v5/countries`);
-          return resolve(response.json());
+        const response_ = await fetch(`${API_URL}/api/v5/countries`);
+        const response = await response_.json();
+        appController.currencies = Object.keys(response.results).map(key => {
+          return {
+            name: response.results[key].currencyId,
+            details: response.results[key],
+          };
         });
-        promise.then(response => {
-          appController.currencies = Object.keys(response.results).map(key => {
-            return {
-              name: response.results[key].currencyId,
-              details: response.results[key],
-            };
-          });
-          appController._addCurrenciesToView(appController.currencies);
-          appController._storeCurrenciesInIDB(appController.currencies);
-          appController._fetchConversionRate();
-        });
+        appController._addCurrenciesToView(appController.currencies);
+        appController._storeCurrenciesInIDB(appController.currencies);
+        appController._fetchConversionRate();
       } else {
         appController._getCurrenciesFromIDB();
       }
@@ -111,20 +105,16 @@ class ApplicationController {
     const query = `${currency1.toUpperCase()}_${currency2.toUpperCase()}`;
     let conversion = await appController._getConversionFromIDB(query);
     if (!conversion) {
-      let promise = new Promise(async (resolve, reject) => {
-        try {
-          const response = await fetch(`${API_URL}/api/v5/convert?q=${query}`);
-          return resolve(response.json());
-        } catch (error) {
-          showToast('Conversion not available offline');
-        }
-      });
-      promise.then(response => {
+      try {
+        const response_ = await fetch(`${API_URL}/api/v5/convert?q=${query}`);
+        const response = await response_.json();
         appController._storeConversionInIDB(response.results[query]);
         conversion = response.results[query];
-        if (!conversion) showToast('Conversion not available offline');
-        else appController._applyConversionRate(conversion.val, query);
-      });
+      } catch (error) {
+        showToast('Conversion not available offline');
+      }
+      if (!conversion) showToast('Conversion not available offline');
+      else appController._applyConversionRate(conversion.val, query);
     } else {
       appController._applyConversionRate(conversion.val, query);
     }
