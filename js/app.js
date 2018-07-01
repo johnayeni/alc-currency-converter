@@ -34,6 +34,10 @@ const openDatabase = () => {
 const showToast = message => {
   view.snackbarText.textContent = message;
   view.snackbar.classList.add('show');
+  // close toast after 5 minutes
+  setInterval(() => {
+    closeToast();
+  }, 10000);
 };
 
 const closeToast = () => {
@@ -72,14 +76,13 @@ class ApplicationController {
   }
 
   // get list of currencies from API
-  _fetchCurrencies() {
+  async _fetchCurrencies() {
     const appController = this;
     try {
       if (navigator.onLine) {
-        let promise = new Promise((resolve, reject) => {
-          return fetch(`${API_URL}/api/v5/countries`).then(response => {
-            resolve(response.json());
-          });
+        let promise = new Promise(async (resolve, reject) => {
+          const response = await fetch(`${API_URL}/api/v5/countries`);
+          return resolve(response.json());
         });
         promise.then(response => {
           appController.currencies = Object.keys(response.results).map(key => {
@@ -108,19 +111,19 @@ class ApplicationController {
     const query = `${currency1.toUpperCase()}_${currency2.toUpperCase()}`;
     let conversion = await appController._getConversionFromIDB(query);
     if (!conversion) {
-      let promise = new Promise((resolve, reject) => {
+      let promise = new Promise(async (resolve, reject) => {
         try {
-          return fetch(`${API_URL}/api/v5/convert?q=${query}`).then(response =>
-            resolve(response.json()),
-          );
+          const response = await fetch(`${API_URL}/api/v5/convert?q=${query}`);
+          return resolve(response.json());
         } catch (error) {
-          showToast('Could not perfrom conversion');
+          showToast('Conversion not available offline');
         }
       });
       promise.then(response => {
         appController._storeConversionInIDB(response.results[query]);
         conversion = response.results[query];
-        appController._applyConversionRate(conversion.val, query);
+        if (!conversion) showToast('Conversion not available offline');
+        else appController._applyConversionRate(conversion.val, query);
       });
     } else {
       appController._applyConversionRate(conversion.val, query);
