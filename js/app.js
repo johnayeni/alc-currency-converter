@@ -39,7 +39,7 @@ const openDatabase = () => {
 const showToast = message => {
   view.snackbarText.textContent = message;
   view.snackbar.classList.add('show');
-  // close toast after 5 minutes
+  // close toast after 10 seconds
   setInterval(() => {
     closeToast();
   }, 10000);
