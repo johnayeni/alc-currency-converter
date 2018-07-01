@@ -20,7 +20,7 @@ self.addEventListener('install', e => {
       file =>
         file === 'https://fonts.googleapis.com/icon?family=Material+Icons'
           ? file
-          : `/alc-currency-converter/${file}`,
+          : `/alc-currency-converter/${file == '/' ? '' : file}`,
     );
   } else filesToCache_ = filesToCache;
 
